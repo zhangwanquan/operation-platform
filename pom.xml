@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <description>运营平台</description>
-
+    <packaging>pom</packaging>
     <modules>
             <module>wechat</module>
     </modules>
