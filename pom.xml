@@ -14,6 +14,10 @@
 
     <description>运营平台</description>
 
+    <modules>
+            <module>wechat</module>
+    </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
