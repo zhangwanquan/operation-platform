@@ -1,6 +1,6 @@
 package com.lys.platform.dao;
 
-import com.lys.platform.entity.Consultant;
+import com.lys.platform.entity.AdminUser;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
@@ -10,5 +10,5 @@ import tk.mybatis.mapper.common.MySqlMapper;
  * @Date 2025/7/29 09:54
  * @version: 1.0
  */
-public interface ConsultantMapper extends Mapper<Consultant>, MySqlMapper<Consultant> {
+public interface AdminUserMapper extends Mapper<AdminUser>, MySqlMapper<AdminUser> {
 }

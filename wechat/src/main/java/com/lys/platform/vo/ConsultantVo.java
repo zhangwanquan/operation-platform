@@ -12,5 +12,5 @@ import lombok.Data;
 public class ConsultantVo {
     private String phone;
     private String name;
-    private String photoUrl;
+    private String avatarAddr;
 }

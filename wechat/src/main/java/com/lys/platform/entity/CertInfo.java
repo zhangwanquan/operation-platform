@@ -2,6 +2,7 @@ package com.lys.platform.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.expression.spel.ast.Selection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -37,6 +38,27 @@ public class CertInfo {
     private Integer certType;
     @Column(name = "user_name")
     private String userName;
+    @Column(name = "city_code")
+    private Integer cityCode;
+    @Column(name = "city_name")
+    private String cityName;
+    @Column(name = "region_code")
+    private Integer regionCode;
+    @Column(name = "region_name")
+    private String regionName;
+    @Column(name = "county_code")
+    private Integer countyCode;
+    @Column(name = "county_name")
+    private String countyName;
+    @Column(name = "shop_business_type")
+    private Integer shopBusinessType;
+    @Column(name = "site_selection_area")
+    private Integer siteSelectionArea;
+    @Column(name = "opened_store_area")
+    private Integer openedStoreArea;
+    @Column(name = "opened_store_count")
+    private Integer openedStoreCount;
+
     @Column(name = "brand_name")
     private String brandName;
     @Column(name = "position")

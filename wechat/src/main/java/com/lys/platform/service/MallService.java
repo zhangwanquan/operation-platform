@@ -4,6 +4,7 @@ import com.lys.platform.vo.FloorStoreInfoVo;
 import com.lys.platform.vo.MallInfoVo;
 import com.lys.platform.vo.MallQueryVo;
 import com.lys.platform.vo.RequirementReqVo;
+import com.lys.platform.vo.StoreQueryVo;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public interface MallService {
 
     Boolean requirementMall(RequirementReqVo requirementReqVo);
 
-    Map<String, FloorStoreInfoVo> getStoreList(Integer mallId);
+    Map<String, FloorStoreInfoVo> getStoreList(StoreQueryVo mallId);
 
     List<MallInfoVo> getMallList(MallQueryVo mallQueryVo);
 

@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 Integer consultantId = customer.getConsultantId();
                 ConsultantVo consultantVo = null;
                 if (null != consultantId) {
+                    // 顾问信息丛后台人员表中查询
                     consultantVo = consultantService.getConsultantById(consultantId);
                 }
                 userInfoVo.setConsultant(consultantVo);

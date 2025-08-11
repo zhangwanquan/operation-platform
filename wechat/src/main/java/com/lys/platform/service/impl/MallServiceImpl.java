@@ -23,6 +23,7 @@ import com.lys.platform.vo.MallInfoVo;
 import com.lys.platform.vo.MallQueryVo;
 import com.lys.platform.vo.RequirementReqVo;
 import com.lys.platform.vo.StoreInfoVo;
+import com.lys.platform.vo.StoreQueryVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.GeoResult;
@@ -197,21 +198,32 @@ public class MallServiceImpl implements MallService {
     }
 
     @Override
-    public  Map<String, FloorStoreInfoVo> getStoreList(Integer mallId) {
+    public  Map<String, FloorStoreInfoVo> getStoreList(StoreQueryVo storeQueryVo) {
         StoreInfo query = new StoreInfo();
-        query.setMallId(mallId);
+        query.setMallId(storeQueryVo.getMallId());
+        // 处理传入的查询条件,名称迷糊查询在java中过滤
+        if (null != storeQueryVo.getRentalStatus()){
+            query.setRentalStatus(storeQueryVo.getRentalStatus());
+        }
+        if (null != storeQueryVo.getBusinessType()){
+            query.setBusinessType(storeQueryVo.getBusinessType());
+        }
         List<StoreInfo> storeInfoList = storeInfoMapper.select(query);
         if (CollectionUtils.isEmpty(storeInfoList)) {
             return Collections.emptyMap();
         }
-        List<StoreInfoVo> all = storeInfoList.stream().sorted(Comparator.comparing((StoreInfo s)
-                                -> s.getRentalStatus() != 0)
-                        .thenComparing(s -> s.getRentalStatus() != 0 ? s.getName() : s.getId().toString()))
+        List<StoreInfoVo> all = storeInfoList.stream()
+                // 处理名称模糊查询
+                .filter(e -> {
+                    if (StringUtils.isNotEmpty(storeQueryVo.getName())) {
+                        return e.getName().contains(storeQueryVo.getName());
+                    }
+                    return true;
+                }).sorted(doSorted(storeQueryVo.getSortType()))
                 .map(this::convertToVo)  // 转换为VO
                 .collect(Collectors.toList());
 
-
-        // 按楼层聚合数据,排序规则,未租排在最上面,按照位号排序,已租按照名称首字母排序
+        // 按楼层聚合数据,排序规则,未租排在最上面,已租的排在后面,按照录入顺序,先填的排在前面
         Map<String, FloorStoreInfoVo> floorStoreInfoVoMap = storeInfoList.stream()
                 .collect(Collectors.groupingBy(
                         StoreInfo::getFloor,
@@ -220,9 +232,8 @@ public class MallServiceImpl implements MallService {
                                 list -> {
                                     // 转换为 StoreInfoVo 并排序
                                     List<StoreInfoVo> voList = list.stream()
-                                            .sorted(Comparator.comparing((StoreInfo s)
-                                                            -> s.getRentalStatus() != 0)
-                                                    .thenComparing(s -> s.getRentalStatus() != 0 ? s.getName() : s.getId().toString()))
+                                            // 处理排序
+                                            .sorted(doSorted(storeQueryVo.getSortType()))
                                             .map(this::convertToVo)  // 转换为VO
                                             .collect(Collectors.toList());
 
@@ -234,6 +245,27 @@ public class MallServiceImpl implements MallService {
         // 按照楼层字母排序
         TreeMap<String, FloorStoreInfoVo> sortedMap = new TreeMap<>(floorStoreInfoVoMap);
         return sortedMap;
+    }
+
+    /**
+     * 默认排序,未租排在最上面,已租的排在后面,按照录入顺序,先填的排在前面
+     * 排序规则,0默认排序、1按单价从高到低、2按单价从低到高3、按面积从高到低4、按面积从低到高
+     * @param sortType
+     * @return
+     */
+    private static Comparator<StoreInfo> doSorted(Integer sortType) {
+        if (sortType.equals(1)) {
+            return Comparator.comparing(StoreInfo::getUnitPrice).reversed();
+        } else if (sortType.equals(2)) {
+            return Comparator.comparing(StoreInfo::getUnitPrice);
+        } else if (sortType.equals(3)) {
+            return Comparator.comparing(StoreInfo::getStoreArea).reversed();
+        } else if (sortType.equals(4)) {
+            return Comparator.comparing(StoreInfo::getStoreArea);
+        }
+        return Comparator.comparing((StoreInfo s)
+                        -> s.getRentalStatus() != 0)
+                .thenComparing(StoreInfo::getCreateTime);
     }
 
     @Override

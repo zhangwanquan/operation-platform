@@ -1,5 +1,6 @@
 package com.lys.platform.entity;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -18,8 +19,8 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@Table(name = "consultant")
-public class Consultant {
+@Table(name = "admin_user")
+public class AdminUser {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +29,16 @@ public class Consultant {
     private String phone;
     @Column(name = "name")
     private String name;
-    @Column(name = "photo_url")
-    private String photoUrl;
+    @Column(name = "avatar_addr")
+    private String avatarAddr;
+    @Column(name = "password")
+    private String password;
+    @Column(name = "reset_password_flag")
+    private Integer resetPasswordFlag;
+    @Column(name = "status")
+    private Integer status;
+    @Column(name = "reliever_id")
+    private Integer relieverId;
     @Column(name = "create_time")
     private Date createTime;
     @Column(name = "update_time")

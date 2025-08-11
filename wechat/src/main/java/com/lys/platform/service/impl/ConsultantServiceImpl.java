@@ -1,7 +1,7 @@
 package com.lys.platform.service.impl;
 
-import com.lys.platform.dao.ConsultantMapper;
-import com.lys.platform.entity.Consultant;
+import com.lys.platform.dao.AdminUserMapper;
+import com.lys.platform.entity.AdminUser;
 import com.lys.platform.service.ConsultantService;
 import com.lys.platform.vo.ConsultantVo;
 import org.springframework.beans.BeanUtils;
@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsultantServiceImpl implements ConsultantService {
     @Autowired
-    private ConsultantMapper consultantMapper;
+    private AdminUserMapper adminUserMapper;
     @Override
     public ConsultantVo getConsultantById(Integer consultantId) {
-        Consultant consultant = consultantMapper.selectByPrimaryKey(consultantId);
-        if (consultant != null) {
+        AdminUser adminUser = adminUserMapper.selectByPrimaryKey(consultantId);
+        if (adminUser != null) {
             ConsultantVo consultantVo = new ConsultantVo();
-            BeanUtils.copyProperties(consultant, consultantVo);
+            BeanUtils.copyProperties(adminUser, consultantVo);
             return consultantVo;
         }
         return null;

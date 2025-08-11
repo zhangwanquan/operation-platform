@@ -27,4 +27,19 @@ public class CertVo {
     private String idCartBack;
     private String idCartFront;
     private String businessLicense;
+
+    private Integer cityCode;
+    private String cityName;
+    private Integer regionCode;
+    private String regionName;
+    private Integer countyCode;
+    private String countyName;
+    private Integer shopBusinessType;
+    private Integer siteSelectionArea;
+    private Integer openedStoreArea;
+    private Integer openedStoreCount;
+
+
+
+
 }
