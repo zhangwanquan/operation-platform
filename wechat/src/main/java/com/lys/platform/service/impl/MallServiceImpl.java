@@ -1,11 +1,13 @@
 package com.lys.platform.service.impl;
 
+import com.lys.platform.dao.BusinessTypeConfigMapper;
 import com.lys.platform.dao.MallClickMapper;
 import com.lys.platform.dao.MallInfoMapper;
 import com.lys.platform.dao.MallLikeMapper;
 import com.lys.platform.dao.MallViewMapper;
 import com.lys.platform.dao.RequirementMapper;
 import com.lys.platform.dao.StoreInfoMapper;
+import com.lys.platform.entity.BusinessTypeConfig;
 import com.lys.platform.entity.Customer;
 import com.lys.platform.entity.MallClick;
 import com.lys.platform.entity.MallInfo;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,6 +67,8 @@ public class MallServiceImpl implements MallService {
     private RequirementMapper requirementMapper;
     @Autowired
     private StoreInfoMapper storeInfoMapper;
+    @Autowired
+    private BusinessTypeConfigMapper businessTypeConfigMapper;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -161,7 +166,58 @@ public class MallServiceImpl implements MallService {
         MallInfo mallInfo = mallInfoMapper.selectByPrimaryKey(mallId);
         MallInfoVo mallInfoVo = new MallInfoVo();
         BeanUtils.copyProperties(mallInfo, mallInfoVo);
+        Map<String, Double> finalPercentageMap = getShopTypeRatio(mallId);
+
+        mallInfoVo.setShopTypeRatio(finalPercentageMap);
         return mallInfoVo;
+    }
+
+    private Map<String, Double> getShopTypeRatio(Integer mallId) {
+        // 查询一共有哪些业态类型
+        List<BusinessTypeConfig> businessTypeConfigs = businessTypeConfigMapper.selectAll();
+        Map<Integer, String> businessTypeConfigMap = businessTypeConfigs.stream().collect(Collectors.toMap(BusinessTypeConfig::getId, BusinessTypeConfig::getName));
+        // 处理业态占比
+        StoreInfo query = new StoreInfo();
+        query.setMallId(mallId);
+        List<StoreInfo> storeInfoList = storeInfoMapper.select(query);
+
+        // Step 1: 按类型分组并统计
+        Map<Integer, Long> typeCountMap = storeInfoList.stream()
+                .collect(Collectors.groupingBy(StoreInfo::getType, Collectors.counting()));
+
+        // Step 2: 计算总数量
+        long totalCount = storeInfoList.size();
+
+        // Step 3: 计算每总类型所占的比例
+        Map<Integer, Double> typePercentageMap = typeCountMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> (double) entry.getValue() / totalCount * 100));
+
+        // Step 4: 取排名前5的类型
+        List<Integer> top5Types = typePercentageMap.entrySet().stream()
+                .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
+                .limit(5)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Step 5: 统计剩余类型的占比
+        Map<String, Double> finalPercentageMap = new LinkedHashMap<>();
+        double othersPercentage = 0.0;
+        for (Map.Entry<Integer, Double> entry : typePercentageMap.entrySet()) {
+            Integer type = entry.getKey();
+            Double percentage = entry.getValue();
+            if (top5Types.contains(type)) {
+                // type的类型code转换
+                String typeName = businessTypeConfigMap.getOrDefault(type, "未知");
+                finalPercentageMap.put(typeName, percentage);
+            } else {
+                othersPercentage += percentage;
+            }
+        }
+        if (othersPercentage > 0) {
+            finalPercentageMap.put("其他", othersPercentage);
+        }
+        return finalPercentageMap;
     }
 
     @Override

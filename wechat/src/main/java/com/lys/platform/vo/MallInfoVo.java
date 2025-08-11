@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @Description:
@@ -62,6 +63,8 @@ public class MallInfoVo {
     private Integer approveStatus;
     @ApiModelProperty(value = "商场评分")
     private Double score;
+    @ApiModelProperty(value = "业态占比")
+    private Map<String, Double> shopTypeRatio;
     private Date createTime;
     private Date updateTime;
 
