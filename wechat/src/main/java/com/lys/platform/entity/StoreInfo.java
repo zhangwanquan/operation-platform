@@ -1,6 +1,5 @@
 package com.lys.platform.entity;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -39,13 +38,8 @@ public class StoreInfo {
     private Integer rentalStatus;
     @Column(name = "cover_url")
     private String coverUrl;
-    @Column(name = "business_type")
-    private Integer businessType;
-    @Column(name = "business_name")
-    private String  businessName;
     @Column(name = "floor")
     private String floor;
-
     @Column(name = "create_time")
     private Date createTime;
     @Column(name = "update_time")

@@ -59,8 +59,8 @@ public class Requirement {
     private String contact_phone;
     @Column(name = "contact_flg")
     private Integer contact_flg;
-    @Column(name = "remark")
-    private String remark;
+    @Column(name = "consultant_id")
+    private Integer consultantId;
 
     @Column(name = "create_time")
     private Date createTime;

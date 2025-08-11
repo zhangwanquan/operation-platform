@@ -33,7 +33,6 @@ public class MallInfo implements Serializable {
     private String name;
     @Column(name = "type")
     private Integer type;
-
     @Column(name = "city_code")
     private String cityCode;
     @Column(name = "city_name")
@@ -42,7 +41,6 @@ public class MallInfo implements Serializable {
     private Integer status;
     @Column(name = "level")
     private Integer level;
-
     @Column(name = "longitude")
     private Double longitude;
     @Column(name = "latitude")
@@ -51,53 +49,35 @@ public class MallInfo implements Serializable {
     private String address;
     @Column(name = "cover_url")
     private String coverUrl;
-
-    @Column(name = "business_duration")
-    private Integer businessDuration;
+    @Column(name = "open_time")
+    private Date openTime;
     @Column(name = "investment_area")
     private Integer investmentArea;
-    @Column(name = "business_type")
-    private Integer businessType;
-    @Column(name = "business_type_name")
-    private String businessTypeName;
-
-
-    @Column(name = "business_type_rate")
-    private Double businessTypeRate;
-
     @Column(name = "main_brand_store")
     private String mainBrandStore;
-
     @Column(name = "shop_scale")
     private Integer shopScale;
     @Column(name = "mall_area")
     private Integer mallArea;
     @Column(name = "parking_space_number")
     private Integer parkingSpaceNumber;
-
+    @Column(name = "property_fee")
+    private Double propertyFee;
     @Column(name = "mall_operator")
     private String mallOperator;
     @Column(name = "mall_investor")
     private String mallInvestor;
+    @Column(name = "features")
+    private String features;
     @Column(name = "plan_url")
     private String planUrl;
     @Column(name = "approve_status")
     private Integer approveStatus;
-
     @Column(name = "score")
     private Double score;
-
     @Column(name = "create_time")
     private Date createTime;
     @Column(name = "update_time")
     private Date updateTime;
-
-
-
-
-
-
-
-
 
 }

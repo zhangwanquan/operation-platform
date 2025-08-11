@@ -28,13 +28,7 @@ public class StoreQueryVo {
     private Integer rentalStatus;
 
     @ApiModelProperty("业态类型，0（零售），1（餐饮），2（休闲娱乐），3（教育/艺术培训），4（生活服务），5（酒店），6（医疗健康），7（其他类型）")
-    private Integer businessType;
-
-    @ApiModelProperty("业态类型名称")
-    private String  businessName;
-
-
-
+    private Integer type;
 
 
 

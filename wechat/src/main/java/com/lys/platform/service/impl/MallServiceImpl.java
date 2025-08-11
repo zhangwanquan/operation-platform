@@ -24,6 +24,7 @@ import com.lys.platform.vo.MallQueryVo;
 import com.lys.platform.vo.RequirementReqVo;
 import com.lys.platform.vo.StoreInfoVo;
 import com.lys.platform.vo.StoreQueryVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.GeoResult;
@@ -31,7 +32,6 @@ import org.springframework.data.geo.Metrics;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
@@ -205,9 +205,9 @@ public class MallServiceImpl implements MallService {
         if (null != storeQueryVo.getRentalStatus()){
             query.setRentalStatus(storeQueryVo.getRentalStatus());
         }
-        if (null != storeQueryVo.getBusinessType()){
+       /* if (null != storeQueryVo.getBusinessType()){
             query.setBusinessType(storeQueryVo.getBusinessType());
-        }
+        }*/
         List<StoreInfo> storeInfoList = storeInfoMapper.select(query);
         if (CollectionUtils.isEmpty(storeInfoList)) {
             return Collections.emptyMap();
@@ -302,11 +302,11 @@ public class MallServiceImpl implements MallService {
                         && matchType(mallQueryVo, mallInfo)
                         && matchMallArea(mallQueryVo, mallInfo)
                         && matchStatus(mallQueryVo, mallInfo)
-                        && matchBusinessDuration(mallQueryVo, mallInfo)
+//                        && matchBusinessDuration(mallQueryVo, mallInfo)
                         && matchLevel(mallQueryVo, mallInfo)
                         && matchInvestmentArea(mallQueryVo, mallInfo)
                         && matchShopScale(mallQueryVo, mallInfo)
-                        && matchBusinessType(mallQueryVo, mallInfo)
+//                        && matchBusinessType(mallQueryVo, mallInfo)
                         && matchParkingSpaceNumber(mallQueryVo, mallInfo))
                 // 直接使用默认排序,如果发现搜索条件有排序规则,则重新进行排序
                 .sorted(Comparator.comparing(MallInfo::getScore).reversed()
@@ -345,12 +345,12 @@ public class MallServiceImpl implements MallService {
         return mallQueryVo.getParkingSpaceNumber().equals(mallInfo.getParkingSpaceNumber());
     }
 
-    private boolean matchBusinessType(MallQueryVo mallQueryVo, MallInfo mallInfo) {
+   /* private boolean matchBusinessType(MallQueryVo mallQueryVo, MallInfo mallInfo) {
         if (null == mallQueryVo.getBusinessType()) {
             return true;
         }
         return mallQueryVo.getBusinessType().equals(mallInfo.getBusinessType());
-    }
+    }*/
 
     private boolean matchShopScale(MallQueryVo mallQueryVo, MallInfo mallInfo) {
         if (null == mallQueryVo.getShopScale()) {
@@ -373,12 +373,12 @@ public class MallServiceImpl implements MallService {
         return mallQueryVo.getLevel().equals(mallInfo.getLevel());
     }
 
-    private boolean matchBusinessDuration(MallQueryVo mallQueryVo, MallInfo mallInfo) {
+    /*private boolean matchBusinessDuration(MallQueryVo mallQueryVo, MallInfo mallInfo) {
         if (null == mallQueryVo.getBusinessDuration()) {
             return true;
         }
         return mallQueryVo.getBusinessDuration().equals(mallInfo.getBusinessDuration());
-    }
+    }*/
 
     private boolean matchStatus(MallQueryVo mallQueryVo, MallInfo mallInfo) {
         if (null == mallQueryVo.getStatus()) {
@@ -413,11 +413,11 @@ public class MallServiceImpl implements MallService {
         if (StringUtils.isEmpty(mallQueryVo.getName())) {
             return true;
         }
-        return mallInfo.getName().contains(mallQueryVo.getName())
-                || Optional.ofNullable(mallInfo.getBusinessTypeName())
+        return mallInfo.getName().contains(mallQueryVo.getName());
+                /*|| Optional.ofNullable(mallInfo.getBusinessTypeName())
                 .filter(name -> mallInfo.getName() != null) // 确保 mallQueryVo.getName() 不为空
                 .map(name -> name.contains(mallQueryVo.getName()))
-                .orElse(false);
+                .orElse(false);*/
     }
 
     public List<MallInfo> getAllMallListFromCache() {

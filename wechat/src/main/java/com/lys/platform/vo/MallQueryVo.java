@@ -42,11 +42,6 @@ public class MallQueryVo {
 
     @ApiModelProperty("商铺规模，0（0-100家），1（101-200家），2（201-500家），3（501家以上）")
     private Integer shopScale;
-    @ApiModelProperty("业态类型，0（零售），1（餐饮），2（休闲娱乐），3（教育/艺术培训），4（生活服务），5（酒店），6（医疗健康），7（其他类型）")
-    private Integer businessType;
-
-    @ApiModelProperty("业态类型名称")
-    private String  businessName;
 
     @ApiModelProperty("停车位数，0（0-500个），1（500-1000个），2（1000-2000个），3（2000-5000个）")
     private Integer parkingSpaceNumber;

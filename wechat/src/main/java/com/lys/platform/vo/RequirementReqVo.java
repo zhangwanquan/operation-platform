@@ -2,14 +2,6 @@ package com.lys.platform.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.experimental.Accessors;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
 
 /**
  * @Description:
@@ -33,8 +25,8 @@ public class RequirementReqVo {
     private Integer businessType;
     private Integer siteSelectionArea;
     private Integer rentBudget;
-    private String contact_phone;
-    private String remark;
+    private String contactPhone;
+    private Integer consultantId;
 
     @JsonIgnore
     private Integer customerId;
