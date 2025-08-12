@@ -9,14 +9,16 @@
     <result column="mall_id" property="mallId" jdbcType="INTEGER" />
     <result column="business_type_id" property="businessTypeId" jdbcType="INTEGER" />
     <result column="business_type_rate" property="businessTypeId" jdbcType="DOUBLE" />
-    <result column="create_time" property="createTime" jdbcType="Date" />
-    <result column="update_time" property="updateTime" jdbcType="Date" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
 
   <select id="selectByMallIdAndBusinessTypeIds" resultType="com.lys.platform.entity.MallBusinessTypeExt">
    SELECT id, mall_id, business_type_id, business_type_rate, create_time, update_time
        FROM mall_business_type_ext
      WHERE mall_id = #{mallId} AND business_type_id in
-       (<foreach collection="businessTypeConfigIds" separator="," item="s">#{s}</foreach>)
+     <foreach item="id" collection="businessTypeIds" open="(" separator="," close=")">
+         #{id}
+     </foreach>
  </select>
 </mapper>

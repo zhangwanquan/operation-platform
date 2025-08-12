@@ -14,5 +14,5 @@ import java.util.List;
  * @version: 1.0
  */
 public interface MallBusinessTypeExtMapper extends Mapper<MallBusinessTypeExt>, MySqlMapper<MallBusinessTypeExt> {
-    List<MallBusinessTypeExt> selectByMallIdAndBusinessTypeIds(@Param("mallId") Integer mallId, @Param("businessTypeConfigIds")List<Integer> businessTypeConfigIds);
+    List<MallBusinessTypeExt> selectByMallIdAndBusinessTypeIds(@Param("mallId") Integer mallId, @Param("businessTypeIds")List<Integer> businessTypeConfigIds);
 }
