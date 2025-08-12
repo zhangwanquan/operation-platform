@@ -28,6 +28,7 @@ public class RedisUtil {
 
     public static final String GEO_KEY = "mall:locations:points";
     public static final String MALL_INFO_KEY = "mall:info:list";
+    public static final String BUSINESS_TYPE_CONFIG_KEY = "business:type:config:list";
 
     @Value("${token.expirationMilliSeconds}")
     private long expirationMilliSeconds;

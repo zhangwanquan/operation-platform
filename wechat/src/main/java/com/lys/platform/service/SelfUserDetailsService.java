@@ -21,7 +21,6 @@ public class SelfUserDetailsService implements UserDetailsService {
 
     /**
      * 若使用security表单鉴权则需实现该方法，通过username获取用户信息（密码、权限等等）
-     * @param username
      * @return
      * @throws UsernameNotFoundException
      */

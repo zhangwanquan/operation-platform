@@ -1,6 +1,6 @@
 package com.lys.platform.service.impl;
 
-import com.lys.platform.dao.BusinessTypeConfigMapper;
+import com.lys.platform.dao.MallBusinessTypeExtMapper;
 import com.lys.platform.dao.MallClickMapper;
 import com.lys.platform.dao.MallInfoMapper;
 import com.lys.platform.dao.MallLikeMapper;
@@ -9,6 +9,7 @@ import com.lys.platform.dao.RequirementMapper;
 import com.lys.platform.dao.StoreInfoMapper;
 import com.lys.platform.entity.BusinessTypeConfig;
 import com.lys.platform.entity.Customer;
+import com.lys.platform.entity.MallBusinessTypeExt;
 import com.lys.platform.entity.MallClick;
 import com.lys.platform.entity.MallInfo;
 import com.lys.platform.entity.MallLike;
@@ -56,6 +57,11 @@ import java.util.stream.Collectors;
 @Service
 public class MallServiceImpl implements MallService {
     @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private BusinessTypeServiceImpl businessTypeService;
+
+    @Autowired
     private MallLikeMapper mallLikeMapper;
     @Autowired
     private MallViewMapper mallViewMapper;
@@ -68,9 +74,7 @@ public class MallServiceImpl implements MallService {
     @Autowired
     private StoreInfoMapper storeInfoMapper;
     @Autowired
-    private BusinessTypeConfigMapper businessTypeConfigMapper;
-    @Autowired
-    private RedisUtil redisUtil;
+    private MallBusinessTypeExtMapper mallBusinessTypeExtMapper;
 
     @Override
     public void likeMall(String phone, Integer mallId, Boolean like) {
@@ -167,55 +171,48 @@ public class MallServiceImpl implements MallService {
         MallInfoVo mallInfoVo = new MallInfoVo();
         BeanUtils.copyProperties(mallInfo, mallInfoVo);
         Map<String, Double> finalPercentageMap = getShopTypeRatio(mallId);
-
         mallInfoVo.setShopTypeRatio(finalPercentageMap);
         return mallInfoVo;
     }
 
     private Map<String, Double> getShopTypeRatio(Integer mallId) {
         // 查询一共有哪些业态类型
-        List<BusinessTypeConfig> businessTypeConfigs = businessTypeConfigMapper.selectAll();
+        List<BusinessTypeConfig> businessTypeConfigs = businessTypeService.getAllBusinessTypeConfigFromCache();
         Map<Integer, String> businessTypeConfigMap = businessTypeConfigs.stream().collect(Collectors.toMap(BusinessTypeConfig::getId, BusinessTypeConfig::getName));
         // 处理业态占比
-        StoreInfo query = new StoreInfo();
+        MallBusinessTypeExt query = new MallBusinessTypeExt();
         query.setMallId(mallId);
-        List<StoreInfo> storeInfoList = storeInfoMapper.select(query);
+        List<MallBusinessTypeExt> mallBusinessTypeExts = mallBusinessTypeExtMapper.select(query);
+        if (CollectionUtils.isEmpty(mallBusinessTypeExts)) {
+            return Collections.emptyMap();
+        }
 
-        // Step 1: 按类型分组并统计
-        Map<Integer, Long> typeCountMap = storeInfoList.stream()
-                .collect(Collectors.groupingBy(StoreInfo::getType, Collectors.counting()));
+        // Step 1: 统计每个业态的比例
+        Map<Integer, Double> typeCountMap = mallBusinessTypeExts.stream()
+                .collect(Collectors.toMap(MallBusinessTypeExt::getBusinessTypeId, MallBusinessTypeExt::getBusinessTypeRate));
 
-        // Step 2: 计算总数量
-        long totalCount = storeInfoList.size();
-
-        // Step 3: 计算每总类型所占的比例
-        Map<Integer, Double> typePercentageMap = typeCountMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> (double) entry.getValue() / totalCount * 100));
-
-        // Step 4: 取排名前5的类型
-        List<Integer> top5Types = typePercentageMap.entrySet().stream()
+        // Step 2: 取排名前5的类型
+        List<Integer> top5Types = typeCountMap.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .limit(5)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        // Step 5: 统计剩余类型的占比
+        // Step 3: 统计剩余类型的占比,不在前5的都放在其他里面
         Map<String, Double> finalPercentageMap = new LinkedHashMap<>();
-        double othersPercentage = 0.0;
-        for (Map.Entry<Integer, Double> entry : typePercentageMap.entrySet()) {
+        double top5Percentage = 0.0;
+        for (Map.Entry<Integer, Double> entry : typeCountMap.entrySet()) {
             Integer type = entry.getKey();
             Double percentage = entry.getValue();
             if (top5Types.contains(type)) {
                 // type的类型code转换
                 String typeName = businessTypeConfigMap.getOrDefault(type, "未知");
                 finalPercentageMap.put(typeName, percentage);
-            } else {
-                othersPercentage += percentage;
+                top5Percentage += percentage;
             }
         }
-        if (othersPercentage > 0) {
-            finalPercentageMap.put("其他", othersPercentage);
+        if (top5Percentage < 0) {
+            finalPercentageMap.put("其他", 1 - top5Percentage);
         }
         return finalPercentageMap;
     }
@@ -275,7 +272,8 @@ public class MallServiceImpl implements MallService {
                         return e.getName().contains(storeQueryVo.getName());
                     }
                     return true;
-                }).sorted(doSorted(storeQueryVo.getSortType()))
+                })
+                .sorted(doSorted(storeQueryVo.getSortType()))
                 .map(this::convertToVo)  // 转换为VO
                 .collect(Collectors.toList());
 
@@ -349,12 +347,13 @@ public class MallServiceImpl implements MallService {
     }
 
     private List<MallInfoVo> filterMallByQuery(List<MallInfo> mallInfos, MallQueryVo mallQueryVo) {
+        List<BusinessTypeConfig> businessTypeConfigs = businessTypeService.getAllBusinessTypeConfigFromCache();
         if (CollectionUtils.isEmpty(mallInfos)) {
             return Collections.emptyList();
         }
         List<MallInfoVo> filteredMallInfoList = mallInfos.stream()
                 .filter(mallInfo -> matchCityCode(mallQueryVo, mallInfo)
-                        && matchNameAndBusinessName(mallQueryVo, mallInfo)
+                        && matchMallNameOrBusinessName(mallQueryVo, mallInfo, businessTypeConfigs)
                         && matchType(mallQueryVo, mallInfo)
                         && matchMallArea(mallQueryVo, mallInfo)
                         && matchStatus(mallQueryVo, mallInfo)
@@ -464,16 +463,32 @@ public class MallServiceImpl implements MallService {
         return StringUtils.equals(mallInfo.getCityCode(), mallQueryVo.getCityCode());
     }
 
-    private static boolean matchNameAndBusinessName(MallQueryVo mallQueryVo, MallInfo mallInfo) {
-        // 商场名称和业态名称做模糊匹配
-        if (StringUtils.isEmpty(mallQueryVo.getName())) {
+    private boolean matchMallNameOrBusinessName(MallQueryVo mallQueryVo, MallInfo mallInfo, List<BusinessTypeConfig> businessTypeConfigs) {
+        String queryName = mallQueryVo.getQueryName();
+        // 商场名称模糊匹配
+        if (StringUtils.isBlank(queryName)) {
             return true;
         }
-        return mallInfo.getName().contains(mallQueryVo.getName());
-                /*|| Optional.ofNullable(mallInfo.getBusinessTypeName())
-                .filter(name -> mallInfo.getName() != null) // 确保 mallQueryVo.getName() 不为空
-                .map(name -> name.contains(mallQueryVo.getName()))
-                .orElse(false);*/
+        return matchMallName(queryName, mallInfo.getName()) || matchBusinessName(queryName, mallInfo.getId(), businessTypeConfigs);
+    }
+    private boolean matchMallName(String queryName, String mallName) {
+        return mallName.contains(queryName);
+    }
+
+    private boolean matchBusinessName(String queryName, Integer mallId, List<BusinessTypeConfig> businessTypeConfigs) {
+        // 业态名称做模糊匹配
+        if (CollectionUtils.isEmpty(businessTypeConfigs)) {
+            return false;
+        }
+        List<Integer> businessTypeConfigIds = businessTypeConfigs.stream()
+                .filter(e -> e.getName().contains(queryName)).map(BusinessTypeConfig::getId).
+                collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(businessTypeConfigIds)) {
+            return false;
+        }
+        // 查询商店的业务类型,是否包含模糊匹配到的id
+        List<MallBusinessTypeExt> mallBusinessTypeExts = mallBusinessTypeExtMapper.selectByMallIdAndBusinessTypeIds(mallId, businessTypeConfigIds);
+        return !CollectionUtils.isEmpty(mallBusinessTypeExts);
     }
 
     public List<MallInfo> getAllMallListFromCache() {

@@ -8,12 +8,12 @@ package com.lys.platform.enums;
  */
 public enum DistanceRangeType {
 
-    RANGE_500_M(0, 0.5 ,"未认证"),
-    RANGE_1_KM(1,  1,"个人认证"),
-    RANGE_2_KM(2, 2, "品牌认证"),
-    RANGE_4_KM(3, 4, "品牌认证"),
-    RANGE_8_KM(4, 8, "品牌认证"),
-    RANGE_10_KM(5, 10,"品牌认证");
+    RANGE_500_M(0, 0.5 ,"500米内"),
+    RANGE_1_KM(1,  1,"1公里内"),
+    RANGE_2_KM(2, 2, "2公里内"),
+    RANGE_4_KM(3, 4, "4公里内"),
+    RANGE_8_KM(4, 8, "8里内"),
+    RANGE_10_KM(5, 10,"10公里内");
 
     private int code;
     private double range;

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class CertVo {
     private Integer id;
-    @ApiModelProperty(value = "认证类型1、未认证2、个人认证3、品牌认证")
+    @ApiModelProperty(value = "认证类型0、未认证1、个人认证2、品牌认证")
     private Integer certType;
     @NotBlank(message ="联系人姓名" )
     private String userName;

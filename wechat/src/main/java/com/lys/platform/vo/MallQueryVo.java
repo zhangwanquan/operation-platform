@@ -16,8 +16,8 @@ public class MallQueryVo {
     @ApiModelProperty(value = "排序规则,0默认排序、1热度排序")
     private Integer sortType;
 
-    @ApiModelProperty(value = "商场名称")
-    private String name;
+    @ApiModelProperty(value = "商场名称或业态名称")
+    private String queryName;
 
     @ApiModelProperty(value = "城市编码,没有获取到定位传成都的cityCode值")
     @NotBlank(message = "城市编码")
