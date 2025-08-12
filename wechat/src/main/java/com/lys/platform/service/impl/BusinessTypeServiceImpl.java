@@ -5,6 +5,7 @@ import com.lys.platform.entity.BusinessTypeConfig;
 import com.lys.platform.service.BusinessTypeService;
 import com.lys.platform.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  * @Date 2025/8/12 10:02
  * @version: 1.0
  */
+@Service
 public class BusinessTypeServiceImpl implements BusinessTypeService {
     @Autowired
     private BusinessTypeConfigMapper businessTypeConfigMapper;

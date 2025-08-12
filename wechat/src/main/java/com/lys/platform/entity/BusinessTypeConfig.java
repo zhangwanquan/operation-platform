@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -19,7 +20,8 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @Table(name = "business_type_config")
-public class BusinessTypeConfig {
+public class BusinessTypeConfig implements Serializable {
+    private static final long serialVersionUID = -613368782098907182L;
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

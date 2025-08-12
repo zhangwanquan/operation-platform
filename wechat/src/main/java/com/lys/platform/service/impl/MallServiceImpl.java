@@ -211,7 +211,7 @@ public class MallServiceImpl implements MallService {
                 top5Percentage += percentage;
             }
         }
-        if (top5Percentage < 0) {
+        if (top5Percentage < 1) {
             finalPercentageMap.put("其他", 1 - top5Percentage);
         }
         return finalPercentageMap;
